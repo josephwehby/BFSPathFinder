@@ -5,6 +5,8 @@
 
 using namespace std;
 
+
+
 struct PathSegment
 {
     unsigned int id;
@@ -27,6 +29,12 @@ struct Edge
 
 };
 
+void draw(sf::RenderWindow& window, vector <PathSegment*>* p) {
+    window.clear();
+    for (unsigned int i = 0; i < p->size(); i++) window.draw(p->at(i)->shape);
+    window.display();
+}
+
 class Grid
 {
     public:
@@ -35,7 +43,7 @@ class Grid
         vector <PathSegment*>* get_segments();
         Edge* build_edge(PathSegment* n1, PathSegment* n2);
         bool build_wall(int x, int y);
-        bool bfs();
+        bool bfs(sf::RenderWindow&, vector <PathSegment*>*);
         void reset();
         const unsigned int WINX = 1057;
         const unsigned int WINY = 1057;
@@ -173,7 +181,7 @@ vector <PathSegment*> * Grid::get_segments()
     return &s; 
 }
 
-bool Grid::bfs()
+bool Grid::bfs(sf::RenderWindow& window, vector <PathSegment*>* p)
 {
     // declare variables
     deque <PathSegment*> q;
@@ -195,6 +203,8 @@ bool Grid::bfs()
         {
             for (i = 0; i < n->edges.size(); i++)
             {
+                if (n != start && n != end) n->shape.setFillColor(sf::Color::Cyan);
+
                 if (n->edges[i]->to->visited == false && n->edges[i]->to->wall == false)
                 {
                     id = n->edges[i]->to->id;
@@ -203,6 +213,7 @@ bool Grid::bfs()
                     n->edges[i]->to->visited = true;
                     q.push_back(n->edges[i]->to);
                 }
+                draw(window, p);
             }
 
         }
@@ -224,7 +235,9 @@ bool Grid::bfs()
     }
 
     // change color of final path
-    for (i = 0; i < path.size(); i++) path[i]->shape.setFillColor(sf::Color::Blue);
+    for (i = 0; i < path.size(); i++) {
+        path[i]->shape.setFillColor(sf::Color::Green);
+    }
     cout << "LENGTH " << distance[end->id] << endl;
 
     return true;
@@ -246,14 +259,18 @@ void Grid::reset()
         
         // if wall change back to white
         if (s[i]->wall == true) {
-            s[i]->shape.setFillColor(sf::Color::White);
             s[i]->wall = false;
         }
-
+        s[i]->shape.setFillColor(sf::Color::White);
         s[i]->backlink = NULL;
         s[i]->visited = false;
     }
+
+    start->shape.setFillColor(sf::Color::Green);
+    end->shape.setFillColor(sf::Color::Red);
 }
+
+
 
 int main()
 {
@@ -287,7 +304,7 @@ int main()
 
             if (event.type == sf::Event::KeyPressed)
             {
-                if (event.key.code == sf::Keyboard::S) g.bfs();
+                if (event.key.code == sf::Keyboard::S) g.bfs(window, p);
             }
 
             if (event.type == sf::Event::KeyPressed)
@@ -295,10 +312,7 @@ int main()
                 if (event.key.code == sf::Keyboard::R) g.reset();
             }
         }
-
-        window.clear();
-        for (i = 0; i < p->size(); i++) window.draw(p->at(i)->shape);
-        window.display();
+        draw(window, p);
     }
 
 	return 0;
