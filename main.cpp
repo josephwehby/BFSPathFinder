@@ -2,10 +2,9 @@
 #include <iostream>
 #include <vector>
 #include <deque>
+#include <Windows.h>
 
 using namespace std;
-
-
 
 struct PathSegment
 {
@@ -189,15 +188,21 @@ bool Grid::bfs(sf::RenderWindow& window, vector <PathSegment*>* p)
     PathSegment* n;
     int id;
     unsigned int i;
+    bool found = false;
 
     // resize data to numsquares
     distance.resize(numsquares, 0);
     q.push_back(start);
     distance[start->id] = 0;
 
-    while (!q.empty())
+    while (!q.empty() && found == false)
     {
         n = q[0];
+
+        if (n == end) {
+            found = true;
+            break;
+        }
 
         if (n->wall == false)
         {
@@ -213,6 +218,7 @@ bool Grid::bfs(sf::RenderWindow& window, vector <PathSegment*>* p)
                     n->edges[i]->to->visited = true;
                     q.push_back(n->edges[i]->to);
                 }
+                
                 draw(window, p);
             }
 
@@ -237,6 +243,8 @@ bool Grid::bfs(sf::RenderWindow& window, vector <PathSegment*>* p)
     // change color of final path
     for (i = 0; i < path.size(); i++) {
         path[i]->shape.setFillColor(sf::Color::Green);
+        draw(window, p);
+        Sleep(1);
     }
     cout << "LENGTH " << distance[end->id] << endl;
 
