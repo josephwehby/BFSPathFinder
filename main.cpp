@@ -208,17 +208,17 @@ bool Grid::bfs(sf::RenderWindow& window, vector <PathSegment*>* p)
         {
             for (i = 0; i < n->edges.size(); i++)
             {
-                if (n != start && n != end) n->shape.setFillColor(sf::Color::Cyan);
-
+                if (n != start && n != end) n->shape.setFillColor(sf::Color::Magenta);
+                
                 if (n->edges[i]->to->visited == false && n->edges[i]->to->wall == false)
-                {
+                {  
                     id = n->edges[i]->to->id;
                     distance[id] = distance[n->id] + 1;
                     n->edges[i]->to->backlink = n->edges[i];
                     n->edges[i]->to->visited = true;
                     q.push_back(n->edges[i]->to);
                 }
-                
+                            
                 draw(window, p);
             }
 
